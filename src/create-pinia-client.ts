@@ -1,6 +1,7 @@
 import type { Application, FeathersService } from '@feathersjs/feathers'
 import type { HandleEvents } from './stores/index.js'
 import type { AnyData } from './types.js'
+import type { StorageArea } from '@types/chrome';
 import { feathers } from '@feathersjs/feathers'
 import { defineStore } from 'pinia'
 import { PiniaService } from './create-pinia-service.js'
@@ -76,18 +77,18 @@ export function createPiniaClient<Client extends Application>(
       serviceOptions.customSiftOperators || {},
       options.customSiftOperators || {},
     )
-    function getStorage(storage: any) {
-      if (options.storage is Storage) {
+    function getStorage(storage: Storage | StorageArea) {
+      if (options.storage instanceof Storage) {
         return {
           clear: clearLocalStorage,
-          sync: syncLocalStorage
+          sync: syncWithLocalStorage
         }
       }
    
-      if (options.storage is StorageArea) {
+      if (options.storage instanceof StorageArea) {
         return {
           clear: clearChromeStorage,
-          sync: syncChromeStorage
+          sync: syncWithChromeStorage
         }
       }
 

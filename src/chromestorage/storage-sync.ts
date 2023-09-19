@@ -1,6 +1,7 @@
 import { computed, watch } from 'vue-demi'
 import { _ } from '@feathersjs/commons'
 import debounce from 'just-debounce'
+import type { StorageArea } from '@types/chrome';
 
 // Writes data to chrome.storage 
 export function writeToStorage(id: string, data: any, storage: StorageArea) {

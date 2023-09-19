@@ -1,3 +1,4 @@
+import type { StorageArea } from '@types/chrome';
 /**
  * Clears all services from chrome.storage. You might use this when a user
  * logs out to make sure their data doesn't persist for the next user.
