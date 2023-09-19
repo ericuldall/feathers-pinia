@@ -9,7 +9,8 @@ import { useServiceStore, useServiceEvents } from './stores/index.js'
 import { feathersPiniaHooks } from './hooks/index.js'
 import { storeAssociated, useServiceInstance } from './modeling/index.js'
 import { defineGetters } from './utils/index.js'
-import { clearStorage, syncWithStorage as __sync } from './localstorage/index.js'
+import { clearStorage as clearLocalStorage, syncWithStorage as syncWithLocalStorage } from './localstorage/index.js'
+import { clearStorage as clearChromeStorage, syncWithStorage as syncWithChromeStorage } from './chromestorage/index.js'
 
 interface SetupInstanceUtils {
   app?: any
@@ -75,6 +76,23 @@ export function createPiniaClient<Client extends Application>(
       serviceOptions.customSiftOperators || {},
       options.customSiftOperators || {},
     )
+    function getStorage(storage: any) {
+      if (options.storage is Storage) {
+        return {
+          clear: clearLocalStorage,
+          sync: syncLocalStorage
+        }
+      }
+   
+      if (options.storage is StorageArea) {
+        return {
+          clear: clearChromeStorage,
+          sync: syncChromeStorage
+        }
+      }
+
+       throw new Error('Invalid storage interface provided in `options.storage`')
+    }
     function customizeStore(utils: any) {
       const fromGlobal = Object.assign(utils, options.customizeStore ? options.customizeStore(utils) : utils)
       const fromService = Object.assign(
@@ -133,7 +151,7 @@ export function createPiniaClient<Client extends Application>(
       const syncWithStorage = [...new Set([...globalStorageKeys, ...serviceStorageKeys])]
       const shouldSyncStorage = syncWithStorage.length > 0
       if (shouldSyncStorage) {
-        __sync(store, syncWithStorage, options.storage)
+        getStorage(options.storage).sync(store, syncWithStorage, options.storage)
       }
     }
 
@@ -173,7 +191,7 @@ export function createPiniaClient<Client extends Application>(
     },
     clearStorage() {
       if (!options.ssr && options.storage) {
-        return clearStorage(options.storage)
+        getStorage(options.storage).clear(options.storage);
       }
     },
   })
